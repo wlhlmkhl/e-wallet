@@ -32,11 +32,11 @@ const walletSlice = createSlice({
     logCards: (state) => {
       console.log(state.cards);
     },
-    addCard: (state) => {
+    addCard: (state, actions) => {
       console.log("add card...");
     },
   },
 });
 
-export const { logCards } = walletSlice.actions;
+export const { logCards, addCard } = walletSlice.actions;
 export default walletSlice.reducer;
