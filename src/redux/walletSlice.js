@@ -35,8 +35,15 @@ const walletSlice = createSlice({
     addCard: (state, actions) => {
       console.log("add card...");
     },
+    removeCard: (state, actions) => {
+      console.log("remove card...");
+    },
+    updateCard: (state, actions) => {
+      console.log("update card...");
+    },
   },
 });
 
-export const { logCards, addCard } = walletSlice.actions;
+export const { logCards, addCard, removeCard, updateCard } =
+  walletSlice.actions;
 export default walletSlice.reducer;

@@ -1,18 +1,25 @@
 import { useState } from "react";
-import Card from "../comp/Card";
-import { useDispatch } from "react-redux";
-import { addCard } from "../redux/walletSlice";
 
-export default function CardForm() {
-  const [cardnumber, setCardnumber] = useState("");
-  const [cardholder, setCardholder] = useState("");
-  const [cvc, setCvc] = useState("");
-  const [expiremonth, setExpiremonth] = useState("");
-  const [expireyear, setExpireyear] = useState("");
-  const [active, setActive] = useState(true);
-  const [vendor, setVendor] = useState("Visa");
+export default function CardForm({ update, card, setCard, handleSubmit }) {
+  // Använder card prop som initial tillstånd
+  const [cardData, setCardData] = useState(card);
+  const [updateOrAdd, setUpdateOrAdd] = useState(update);
 
-  // Månader till select
+  // Hanterar alla fältändringar i ett enda handtag
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Uppdatera både cardData lokalt och parent state (setCard)
+    setCardData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    setCard((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   const months = [
     "January",
     "February",
@@ -28,76 +35,70 @@ export default function CardForm() {
     "December",
   ];
 
-  // ÅR till Select
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, index) => currentYear + index);
 
-  // Utgivare till select
   const vendors = ["Visa", "MasterCard", "AmericanExpress"];
-
-  const dispatch = useDispatch();
-
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Förhindra sidladdning vid formulärskick
-    console.log("Card Info:", {
-      cardnumber,
-      cardholder,
-      cvc,
-      expiremonth,
-      expireyear,
-      active,
-      vendor,
-    });
-    dispatch(addCard());
-  };
 
   return (
     <div className="cardform">
-      <div className="cardform--card-container">
-        <Card />
-      </div>
       <form className="cardform--form" onSubmit={handleSubmit}>
         <input
           type="text"
+          name="cardnumber"
           className="input-field"
           placeholder="Enter Card Number"
-          value={cardnumber}
-          onChange={(e) => setCardnumber(e.target.value)}
+          value={cardData.cardnumber}
+          onChange={handleInputChange}
         />
 
         <input
           type="text"
+          name="cardholder"
           className="input-field"
           placeholder="Enter Name of Cardholder"
-          value={cardholder}
-          onChange={(e) => setCardholder(e.target.value)}
+          value={cardData.cardholder}
+          onChange={handleInputChange}
         />
+
         <input
           type="text"
+          name="cvc"
           className="input-field"
           placeholder="Enter CVC"
-          value={cvc}
-          onChange={(e) => setCvc(e.target.value)}
+          value={cardData.cvc}
+          onChange={handleInputChange}
         />
 
         {/* Dropdown for expire dates */}
         <fieldset>
           <legend>Expire Month / Year</legend>
+
+          {/* Expire Month */}
           <select
+            name="expiremonth"
             id="expire-month"
-            onChange={(e) => setExpiremonth(e.target.value)}
+            value={cardData.expiremonth}
+            onChange={handleInputChange}
           >
+            <option value="">Select Month</option>
             {months.map((month, i) => (
               <option key={i} value={i + 1}>
                 {month}
               </option>
             ))}
           </select>
+
           <span className="cardform--divider"> / </span>
+
+          {/* Expire Year */}
           <select
+            name="expireyear"
             id="expire-year"
-            onChange={(e) => setExpireyear(e.target.value)}
+            value={cardData.expireyear}
+            onChange={handleInputChange}
           >
+            <option value="">Select Year</option>
             {years.map((year, i) => (
               <option key={i} value={year}>
                 {year}
@@ -109,34 +110,35 @@ export default function CardForm() {
         {/* Radio Buttons input for active/inactive */}
         <input
           type="radio"
-          name="activeOrNot"
+          name="active"
           id="cardform--active-card"
           className="cardform--radio"
           value={true}
-          checked={active === true}
-          onChange={(e) => setActive(JSON.parse(e.target.value))}
+          checked={cardData.active === true}
+          onChange={handleInputChange}
         />
         <label htmlFor="cardform--active-card">Active</label>
 
         <input
           type="radio"
-          name="activeOrNot"
+          name="active"
           id="cardform--inactive-card"
           className="cardform--radio"
           value={false}
-          checked={active === false}
-          onChange={(e) => setActive(JSON.parse(e.target.value))}
+          checked={cardData.active === false}
+          onChange={handleInputChange}
         />
         <label htmlFor="cardform--inactive-card">Inactive</label>
 
         {/* Select for vendor */}
         <select
+          name="vendor"
           id="cardform--select-vendor"
-          onChange={(e) => setVendor(e.target.value)}
+          value={cardData.vendor}
+          onChange={handleInputChange}
         >
           <option value="" disabled>
-            {" "}
-            select
+            Select Vendor
           </option>
           {vendors.map((vendor, i) => (
             <option key={i} value={vendor}>
@@ -146,7 +148,7 @@ export default function CardForm() {
         </select>
 
         <button type="submit" className="cardform--button">
-          Add Card
+          {updateOrAdd ? "Update" : "Add"}
         </button>
       </form>
     </div>
